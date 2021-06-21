@@ -1,0 +1,5 @@
+mutation authenticate($user: UserCredentials!) {
+  authenticate(user: $user) {
+    token
+  }
+}

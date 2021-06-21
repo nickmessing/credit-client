@@ -1,7 +1,7 @@
-query users {
-  users{
-    data{
-      id
-    }
+query usersList($offset: Int!, $limit: Int!) {
+  usersCount
+  users(offset: $offset, limit: $limit) {
+    id
+    username
   }
 }
