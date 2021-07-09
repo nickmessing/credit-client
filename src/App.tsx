@@ -1,14 +1,17 @@
 import { defineComponent, provide } from 'vue'
-import { DefaultApolloClient } from '@vue/apollo-composable'
-import { apolloClient } from './apollo'
 import '@/assets/tailwind.css'
+import '@/assets/main.css'
 
-import { MainLayout } from './layout/Main'
+import { MainLayout } from '@/layout/Main'
+import { MeKey } from '@/store/auth'
+import { useMeQuery } from '@/generated/graphql'
 
 export const App = defineComponent({
   name: 'App',
   setup() {
-    provide(DefaultApolloClient, apolloClient)
+    const me = useMeQuery()
+
+    provide(MeKey, me)
 
     return () => <MainLayout />
   },

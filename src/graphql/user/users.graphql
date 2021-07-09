@@ -1,7 +1,10 @@
-query usersList($offset: Int!, $limit: Int!) {
-  usersCount
-  users(offset: $offset, limit: $limit) {
+query usersList($pagination: Pagination!, $search: Search!) {
+  usersCount(search: $search)
+  users(pagination: $pagination, search: $search) {
     id
     username
+    firstName
+    lastName
+    role
   }
 }

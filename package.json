@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.20",
+    "@mdi/js": "^5.9.55",
     "@tailwindcss/postcss7-compat": "^2.0.2",
     "@vue/apollo-composable": "^4.0.0-alpha.12",
     "autoprefixer": "^9",
@@ -17,9 +18,11 @@
     "graphql": "^15.5.0",
     "graphql-tag": "^2.12.4",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
     "postcss": "^7",
     "register-service-worker": "^1.7.1",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.2",
+    "validator": "^13.6.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0"
   },
@@ -29,6 +32,8 @@
     "@graphql-codegen/typescript-operations": "1.18.0",
     "@graphql-codegen/typescript-vue-apollo": "^2.3.5",
     "@types/jsonwebtoken": "^8.5.1",
+    "@types/lodash": "^4.14.170",
+    "@types/validator": "^13.1.4",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
     "@vue/cli-plugin-babel": "~4.5.0",

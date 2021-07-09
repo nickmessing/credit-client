@@ -27,8 +27,8 @@ export type AuthenticationResult = {
 export type Mutation = {
   __typename?: 'Mutation';
   authenticate: AuthenticationResult;
-  seed: Scalars['Int'];
   createUser: User;
+  setRole: User;
 };
 
 
@@ -38,20 +38,49 @@ export type MutationAuthenticateArgs = {
 
 
 export type MutationCreateUserArgs = {
-  user: UserCredentials;
+  user: UserCreateCredentials;
+};
+
+
+export type MutationSetRoleArgs = {
+  role: UserRole;
+  id: Scalars['ID'];
+};
+
+export type Pagination = {
+  offset: Scalars['Int'];
+  limit: Scalars['Int'];
+  orderBy?: Maybe<Scalars['String']>;
+  orderDesc?: Maybe<Scalars['Boolean']>;
 };
 
 export type Query = {
   __typename?: 'Query';
   usersCount: Scalars['Int'];
   users: Array<User>;
+  user: User;
   me?: Maybe<User>;
 };
 
 
+export type QueryUsersCountArgs = {
+  search: Search;
+};
+
+
 export type QueryUsersArgs = {
-  limit: Scalars['Int'];
-  offset: Scalars['Int'];
+  search: Search;
+  pagination: Pagination;
+};
+
+
+export type QueryUserArgs = {
+  id: Scalars['ID'];
+};
+
+export type Search = {
+  field?: Maybe<Scalars['String']>;
+  needle: Scalars['String'];
 };
 
 export type User = {
@@ -60,12 +89,28 @@ export type User = {
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
   username: Scalars['String'];
+  firstName: Scalars['String'];
+  lastName: Scalars['String'];
+  role: UserRole;
+};
+
+export type UserCreateCredentials = {
+  username: Scalars['String'];
+  password: Scalars['String'];
+  firstName: Scalars['String'];
+  lastName: Scalars['String'];
+  role: UserRole;
 };
 
 export type UserCredentials = {
   username: Scalars['String'];
   password: Scalars['String'];
 };
+
+export enum UserRole {
+  Admin = 'Admin',
+  Manager = 'Manager'
+}
 
 export type AuthenticateMutationVariables = Exact<{
   user: UserCredentials;
@@ -81,7 +126,7 @@ export type AuthenticateMutation = (
 );
 
 export type CreateUserMutationVariables = Exact<{
-  user: UserCredentials;
+  user: UserCreateCredentials;
 }>;
 
 
@@ -100,21 +145,26 @@ export type MeQuery = (
   { __typename?: 'Query' }
   & { me?: Maybe<(
     { __typename?: 'User' }
-    & Pick<User, 'username'>
+    & Pick<User, 'id' | 'username' | 'role'>
   )> }
 );
 
-export type SeedMutationVariables = Exact<{ [key: string]: never; }>;
+export type UserQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
 
 
-export type SeedMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'seed'>
+export type UserQuery = (
+  { __typename?: 'Query' }
+  & { user: (
+    { __typename?: 'User' }
+    & Pick<User, 'username' | 'role'>
+  ) }
 );
 
 export type UsersListQueryVariables = Exact<{
-  offset: Scalars['Int'];
-  limit: Scalars['Int'];
+  pagination: Pagination;
+  search: Search;
 }>;
 
 
@@ -123,7 +173,7 @@ export type UsersListQuery = (
   & Pick<Query, 'usersCount'>
   & { users: Array<(
     { __typename?: 'User' }
-    & Pick<User, 'id' | 'username'>
+    & Pick<User, 'id' | 'username' | 'firstName' | 'lastName' | 'role'>
   )> }
 );
 
@@ -158,7 +208,7 @@ export function useAuthenticateMutation(options: VueApolloComposable.UseMutation
 }
 export type AuthenticateMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<AuthenticateMutation, AuthenticateMutationVariables>;
 export const CreateUserDocument = gql`
-    mutation createUser($user: UserCredentials!) {
+    mutation createUser($user: UserCreateCredentials!) {
   createUser(user: $user) {
     id
   }
@@ -189,7 +239,9 @@ export type CreateUserMutationCompositionFunctionResult = VueApolloComposable.Us
 export const MeDocument = gql`
     query me {
   me {
+    id
     username
+    role
   }
 }
     `;
@@ -210,35 +262,43 @@ export function useMeQuery(options: VueApolloComposable.UseQueryOptions<MeQuery,
   return VueApolloComposable.useQuery<MeQuery, MeQueryVariables>(MeDocument, {}, options);
 }
 export type MeQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<MeQuery, MeQueryVariables>;
-export const SeedDocument = gql`
-    mutation seed {
-  seed
+export const UserDocument = gql`
+    query user($id: ID!) {
+  user(id: $id) {
+    username
+    role
+  }
 }
     `;
 
 /**
- * __useSeedMutation__
+ * __useUserQuery__
  *
- * To run a mutation, you first call `useSeedMutation` within a Vue component and pass it any options that fit your needs.
- * When your component renders, `useSeedMutation` returns an object that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ * To run a query within a Vue component, call `useUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
  *
- * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
  *
  * @example
- * const { mutate, loading, error, onDone } = useSeedMutation();
+ * const { result, loading, error } = useUserQuery({
+ *   id: // value for 'id'
+ * });
  */
-export function useSeedMutation(options: VueApolloComposable.UseMutationOptions<SeedMutation, SeedMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<SeedMutation, SeedMutationVariables>> = {}) {
-  return VueApolloComposable.useMutation<SeedMutation, SeedMutationVariables>(SeedDocument, options);
+export function useUserQuery(variables: UserQueryVariables | VueCompositionApi.Ref<UserQueryVariables> | ReactiveFunction<UserQueryVariables>, options: VueApolloComposable.UseQueryOptions<UserQuery, UserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<UserQuery, UserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<UserQuery, UserQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<UserQuery, UserQueryVariables>(UserDocument, variables, options);
 }
-export type SeedMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<SeedMutation, SeedMutationVariables>;
+export type UserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<UserQuery, UserQueryVariables>;
 export const UsersListDocument = gql`
-    query usersList($offset: Int!, $limit: Int!) {
-  usersCount
-  users(offset: $offset, limit: $limit) {
+    query usersList($pagination: Pagination!, $search: Search!) {
+  usersCount(search: $search)
+  users(pagination: $pagination, search: $search) {
     id
     username
+    firstName
+    lastName
+    role
   }
 }
     `;
@@ -255,8 +315,8 @@ export const UsersListDocument = gql`
  *
  * @example
  * const { result, loading, error } = useUsersListQuery({
- *   offset: // value for 'offset'
- *   limit: // value for 'limit'
+ *   pagination: // value for 'pagination'
+ *   search: // value for 'search'
  * });
  */
 export function useUsersListQuery(variables: UsersListQueryVariables | VueCompositionApi.Ref<UsersListQueryVariables> | ReactiveFunction<UsersListQueryVariables>, options: VueApolloComposable.UseQueryOptions<UsersListQuery, UsersListQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<UsersListQuery, UsersListQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<UsersListQuery, UsersListQueryVariables>> = {}) {

@@ -1,14 +1,14 @@
 import { computed, defineComponent, ref, watch } from 'vue'
-import { typedListener } from '@/types'
+import { typedArray, typedListener } from '@/types'
 
-let inputCounter = 0
+let dropdownCounter = 0
 
-export const TextInput = defineComponent({
-  name: 'TextInput',
+export const DropdownSelect = defineComponent({
+  name: 'DropdownSelect',
   props: {
     label: {
       type: String,
-      default: 'Text input',
+      default: 'Dropdown',
     },
     value: {
       type: String,
@@ -18,9 +18,9 @@ export const TextInput = defineComponent({
       type: String,
       default: '',
     },
-    type: {
-      type: String,
-      default: 'text',
+    options: {
+      type: typedArray<{ label: string; value: string }>(),
+      required: true,
     },
     error: {
       type: String,
@@ -44,36 +44,38 @@ export const TextInput = defineComponent({
     )
 
     const setValue = (event: Event) => {
-      const target = event.target as HTMLInputElement
+      const target = event.target as HTMLSelectElement
       const value = target.value
 
       innerValue.value = value
       props.onInput?.(value)
     }
 
-    const counterValue = ref(++inputCounter)
-    const id = computed(() => `input_${props.id || counterValue.value}`)
+    const counterValue = ref(++dropdownCounter)
+    const id = computed(() => `select_${props.id || counterValue.value}`)
 
     return () => (
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for={id.value}>
           {props.label}
         </label>
-        <input
+        <select
           class={[
             'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
             {
-              'border-red-500': props.error !== '',
-              'mb-3': props.error !== '',
+              'border-red-500 mb-3': props.error,
             },
           ]}
           id={id.value}
-          type={props.type}
           placeholder={props.label}
           value={innerValue.value}
-          onInput={setValue}
+          onChange={setValue}
           onBlur={props.onBlur}
-        />
+        >
+          {props.options.map(option => (
+            <option value={option.value}>{option.label}</option>
+          ))}
+        </select>
         {props.error && <p class="text-red-500 text-xs italic">{props.error}</p>}
       </div>
     )

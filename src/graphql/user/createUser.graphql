@@ -1,4 +1,4 @@
-mutation createUser($user: UserCredentials!) {
+mutation createUser($user: UserCreateCredentials!) {
   createUser(user: $user) {
     id
   }
